@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+    - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+  
+  wordpress:
+    depends_on:
+    - db
+    image: wordpress:latest
+    volumes:
+    - ./wp-app:/var/www/html
+    ports:
+    # - "8001:80"
+    - "127.0.0.3:8001:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+
+  adminer:
+    # default port 8080
+    image: adminer:4
+    container_name: wp2-adminer
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.3:9001:8080"
+  
+  mailhog:
+    container_name: wp2-mailhog
+    image: mailhog/mailhog
+    ports:
+      - "127.0.0.3:8026:8025"
+  
+volumes:
+  db_data: {}
+  wordpress_data: {}
